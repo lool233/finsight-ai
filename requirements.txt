@@ -1,0 +1,12 @@
+# 智析 FinSight AI —— 运行依赖
+# 技术栈：HTML + CSS + JavaScript + Flask + MySQL + LLM
+
+Flask>=3.0
+PyMySQL>=1.1.0
+Werkzeug>=3.0
+
+# 说明：
+# 1) 大模型调用使用 Python 标准库 urllib 实现（OpenAI 兼容 /chat/completions 协议），
+#    因此无需额外安装 openai / requests 等第三方库。
+# 2) 若采用 SQLite 演示模式（DB_DIALECT=sqlite），sqlite3 已内置于 Python，
+#    仅需安装 Flask。

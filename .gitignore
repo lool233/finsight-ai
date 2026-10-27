@@ -1,0 +1,20 @@
+# 智析 FinSight AI —— 版本控制忽略规则
+# 说明：本文件用于 Git 等版本控制工具，避免把私密配置与运行时产物提交到仓库。
+
+# 本机私密配置（含 API 密钥等），务必忽略
+.env.local
+.env.*.local
+
+# 运行时产物
+data/
+__pycache__/
+*.py[cod]
+*.db
+*.db-journal
+*.log
+
+# 编辑器与操作系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

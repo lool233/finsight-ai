@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}借资管理 - {{ APP_NAME }}{% endblock %}
+{% block page_title %}借资管理{% endblock %}
+{% block page_sub %}销售人员财务借资信息的增删改查与还款登记{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-head">
+        <h2>查询条件</h2>
+        <div>
+            <button class="btn primary sm" id="btn-add">+ 登记借资</button>
+            <button class="btn sm" id="btn-export">导出 CSV</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="toolbar">
+            <div class="field"><label>关键字</label>
+                <input type="text" id="f-keyword" placeholder="借资单号 / 姓名 / 工号 / 用途"></div>
+            <div class="field"><label>部门</label><select id="f-dept"><option value="">全部部门</option></select></div>
+            <div class="field"><label>借资类型</label><select id="f-type"><option value="">全部类型</option></select></div>
+            <div class="field"><label>状态</label><select id="f-status"><option value="">全部状态</option></select></div>
+            <div class="field"><label>借资日期起</label><input type="date" id="f-start"></div>
+            <div class="field"><label>借资日期止</label><input type="date" id="f-end"></div>
+            <div class="field"><label>金额下限</label><input type="number" id="f-min" placeholder="元"></div>
+            <div class="field"><label>金额上限</label><input type="number" id="f-max" placeholder="元"></div>
+            <div class="field"><label>&nbsp;</label>
+                <label style="font-size:13px;color:#1f2937;display:flex;align-items:center;gap:5px">
+                    <input type="checkbox" id="f-overdue" style="width:auto"> 仅看逾期
+                </label>
+            </div>
+            <div class="spacer"></div>
+            <div class="field"><label>&nbsp;</label>
+                <button class="btn primary" id="btn-search">查询</button>
+                <button class="btn" id="btn-reset">重置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid cols-4">
+    <div class="stat"><div class="label">筛选结果借资总额（元）</div><div class="value" id="sum-total">-</div></div>
+    <div class="stat ok"><div class="label">已还金额（元）</div><div class="value ok" id="sum-repaid">-</div></div>
+    <div class="stat warn"><div class="label">未还金额（元）</div><div class="value warn" id="sum-unpaid">-</div></div>
+    <div class="stat danger"><div class="label">记录数</div><div class="value" id="sum-count">-</div></div>
+</div>
+
+<div class="card">
+    <div class="card-head"><h2>借资记录列表</h2><span class="hint" id="list-hint"></span></div>
+    <div class="card-body tight">
+        <div id="table-loans"></div>
+        <div class="pager" id="pager"></div>
+    </div>
+</div>
+
+<!-- 借资表单弹窗 -->
+<div class="modal-mask" id="modal-loan">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="loan-modal-title">登记借资信息</h3>
+            <button class="x" data-close="modal-loan">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="form-loan" onsubmit="return false">
+                <input type="hidden" name="id">
+                <div class="form-grid">
+                    <div class="field"><label>借资单号</label>
+                        <input type="text" name="loan_no" placeholder="留空则自动生成，如 JZ202501010001"></div>
+                    <div class="field"><label>销售人员<span class="req">*</span></label>
+                        <select name="sales_id" id="sel-sales"></select></div>
+                    <div class="field"><label>借资金额（元）<span class="req">*</span></label>
+                        <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00"></div>
+                    <div class="field"><label>借资类型<span class="req">*</span></label>
+                        <select name="loan_type" id="sel-type"></select></div>
+                    <div class="field"><label>借资日期<span class="req">*</span></label>
+                        <input type="date" name="loan_date"></div>
+                    <div class="field"><label>约定还款日</label>
+                        <input type="date" name="repay_deadline">
+                        <div class="text-sub" style="font-size:11.5px;margin-top:4px">
+                            留空则默认按“借资日 + {{ OVERDUE_MONTHS }} 个月”计算</div></div>
+                    <div class="field full"><label>借资用途</label>
+                        <input type="text" name="purpose" placeholder="如：2025年华东区客户走访差旅费预支"></div>
+                    <div class="field full"><label>备注</label>
+                        <textarea name="remark" placeholder="选填"></textarea></div>
+                </div>
+                <div class="notice amber" id="edit-status-box" style="display:none">
+                    <label style="font-size:12.5px">记录状态：</label>
+                    <select name="status" id="sel-status" style="margin-top:6px"></select>
+                    <div class="text-sub" style="font-size:11.5px;margin-top:4px">
+                        状态由还款流水自动计算；“已核销”用于凭票据核销的特殊情况。</div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-foot">
+            <button class="btn" data-close="modal-loan">取消</button>
+            <button class="btn primary" id="btn-save-loan">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 借资详情弹窗 -->
+<div class="modal-mask" id="modal-detail">
+    <div class="modal wide">
+        <div class="modal-head">
+            <h3>借资详情</h3>
+            <button class="x" data-close="modal-detail">×</button>
+        </div>
+        <div class="modal-body" id="detail-body"></div>
+        <div class="modal-foot">
+            <button class="btn" data-close="modal-detail">关闭</button>
+            <button class="btn primary" id="btn-repay">登记还款</button>
+        </div>
+    </div>
+</div>
+
+<!-- 还款登记弹窗 -->
+<div class="modal-mask" id="modal-repay">
+    <div class="modal narrow">
+        <div class="modal-head">
+            <h3>登记还款</h3>
+            <button class="x" data-close="modal-repay">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="notice blue" id="repay-info"></div>
+            <form id="form-repay" onsubmit="return false">
+                <input type="hidden" name="loan_id">
+                <div class="field"><label>本次还款金额（元）<span class="req">*</span></label>
+                    <input type="number" name="repay_amount" step="0.01" min="0.01"></div>
+                <div class="field"><label>还款日期<span class="req">*</span></label>
+                    <input type="date" name="repay_date"></div>
+                <div class="field"><label>还款方式</label>
+                    <select name="repay_method">
+                        <option>银行转账</option><option>现金</option>
+                        <option>工资抵扣</option><option>其他</option>
+                    </select></div>
+                <div class="field"><label>备注</label><input type="text" name="remark"></div>
+            </form>
+        </div>
+        <div class="modal-foot">
+            <button class="btn" data-close="modal-repay">取消</button>
+            <button class="btn primary" id="btn-save-repay">确认登记</button>
+        </div>
+    </div>
+</div>
+
+<!-- 催还文案预览弹窗 -->
+<div class="modal-mask" id="modal-preview">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>催还短信预览（LLM 生成，未发送）</h3>
+            <button class="x" data-close="modal-preview">×</button>
+        </div>
+        <div class="modal-body" id="preview-body"></div>
+        <div class="modal-foot">
+            <button class="btn" data-close="modal-preview">关闭</button>
+            <button class="btn primary" id="btn-send-preview">确认生成并发送催还</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/loans.js') }}"></script>
+{% endblock %}

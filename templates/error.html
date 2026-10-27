@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ code }} - {{ APP_NAME }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<div class="login-page">
+    <div class="login-box" style="max-width:520px;display:block;padding:40px;text-align:center">
+        <div style="font-size:52px;font-weight:700;color:#2f6fed">{{ code }}</div>
+        <p style="color:#6b7280;margin:12px 0 24px">{{ message }}</p>
+        <a class="btn primary" href="/dashboard">返回数据看板</a>
+    </div>
+</div>
+</body>
+</html>

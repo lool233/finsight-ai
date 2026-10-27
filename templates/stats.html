@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}统计报表 - {{ APP_NAME }}{% endblock %}
+{% block page_title %}统计报表{% endblock %}
+{% block page_sub %}借资与逾期的多维度统计分析{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-head"><h2>统计条件</h2></div>
+    <div class="card-body">
+        <div class="toolbar">
+            <div class="field"><label>趋势区间（月）</label>
+                <select id="f-months">
+                    <option value="3">近 3 个月</option>
+                    <option value="6" selected>近 6 个月</option>
+                    <option value="12">近 12 个月</option>
+                    <option value="24">近 24 个月</option>
+                </select></div>
+            <div class="field"><label>欠款排行数量</label>
+                <select id="f-top">
+                    <option value="5">TOP 5</option>
+                    <option value="8" selected>TOP 8</option>
+                    <option value="10">TOP 10</option>
+                    <option value="20">TOP 20</option>
+                </select></div>
+            <div class="spacer"></div>
+            <div class="field"><label>&nbsp;</label>
+                <button class="btn primary" id="btn-refresh">刷新统计</button>
+                <button class="btn" id="btn-print">打印 / 导出 PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid cols-4">
+    <div class="stat"><div class="label">借资总额（元）</div><div class="value" id="s1">-</div></div>
+    <div class="stat ok"><div class="label">已还金额（元）</div><div class="value ok" id="s2">-</div></div>
+    <div class="stat warn"><div class="label">未还金额（元）</div><div class="value warn" id="s3">-</div></div>
+    <div class="stat danger"><div class="label">逾期未还金额（元）</div><div class="value danger" id="s4">-</div></div>
+</div>
+
+<div class="grid cols-2">
+    <div class="card">
+        <div class="card-head"><h2>部门借资对比</h2><span class="hint">单位：元</span></div>
+        <div class="card-body"><div class="chart" id="chart-dept"></div></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>借资类型分布</h2><span class="hint">单位：元</span></div>
+        <div class="card-body"><div class="chart" id="chart-type"></div></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head"><h2>借资月度趋势</h2><span class="hint" id="trend-hint"></span></div>
+    <div class="card-body"><div class="chart" id="chart-trend"></div></div>
+</div>
+
+<div class="grid cols-2">
+    <div class="card">
+        <div class="card-head"><h2>逾期账龄分布</h2><span class="hint">按未还金额</span></div>
+        <div class="card-body"><div class="chart" id="chart-aging"></div></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>部门统计明细</h2></div>
+        <div class="card-body tight"><div id="table-dept"></div></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head"><h2>销售人员未还金额排行</h2><span class="hint">用于确定重点催还对象</span></div>
+    <div class="card-body tight"><div id="table-top"></div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/stats.js') }}"></script>
+{% endblock %}

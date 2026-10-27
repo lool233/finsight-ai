@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}AI 智能助手 - {{ APP_NAME }}{% endblock %}
+{% block page_title %}AI 智能助手{% endblock %}
+{% block page_sub %}用自然语言查询统计财务借资情况{% endblock %}
+
+{% block content %}
+<div class="card mb0">
+    <div class="card-head">
+        <h2>自然语言查询统计</h2>
+        <span class="hint" id="llm-mode"></span>
+    </div>
+    <div class="chat-wrap">
+        <div class="chat-body" id="chat-body"></div>
+        <div class="chat-input">
+            <div class="samples" id="samples"></div>
+            <div class="row">
+                <textarea id="question" rows="1"
+                          placeholder="例如：有哪些人借资超过3个月还没还？未还金额最多的前5名是谁？（Enter 发送，Shift+Enter 换行）"></textarea>
+                <button class="btn primary" id="btn-ask">发送</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/assistant.js') }}"></script>
+{% endblock %}

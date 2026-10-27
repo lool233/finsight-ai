@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}系统状态 - {{ APP_NAME }}{% endblock %}
+{% block page_title %}系统状态{% endblock %}
+{% block page_sub %}数据库、大模型、短信平台配置与操作日志{% endblock %}
+
+{% block content %}
+<div id="status-cards" class="grid cols-3"></div>
+<div class="grid cols-2">
+    <div class="card">
+        <div class="card-head"><h2>数据库信息</h2></div>
+        <div class="card-body tight"><div id="table-db"></div></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>业务规则参数</h2></div>
+        <div class="card-body tight"><div id="table-biz"></div></div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-head"><h2>最近操作日志</h2><span class="hint">记录借资维护、催还执行等关键操作</span></div>
+    <div class="card-body tight"><div id="table-logs"></div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/system.js') }}"></script>
+{% endblock %}

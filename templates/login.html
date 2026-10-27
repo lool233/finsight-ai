@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - {{ APP_NAME }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<div class="login-page">
+    <div class="login-box">
+        <div class="login-left">
+            <h1>智析 FinSight AI</h1>
+            <p style="color:#7dd3fc;font-size:14px;margin:-4px 0 14px;letter-spacing:1px">
+                财务借支智能分析与催收助手</p>
+            <p>面向公司财务与销售管理者的一体化借资台账与智能催收平台，
+               基于 Flask + MySQL + 大语言模型（LLM）构建。</p>
+            <ul>
+                <li>销售人员财务借资信息全生命周期管理</li>
+                <li>借资超过 3 个月未还自动进入催还流程</li>
+                <li>LLM 分析借资风险并生成催还短信</li>
+                <li>自然语言查询统计财务借资情况</li>
+            </ul>
+        </div>
+        <div class="login-right">
+            <h2>用户登录</h2>
+            <div class="tip">请输入账号与密码进入系统</div>
+            <div class="field">
+                <label>登录账号</label>
+                <input type="text" id="username" placeholder="请输入登录账号" autocomplete="username">
+            </div>
+            <div class="field">
+                <label>登录密码</label>
+                <input type="password" id="password" placeholder="请输入登录密码" autocomplete="current-password">
+            </div>
+            <button class="btn primary" id="btn-login">登 录</button>
+            <div class="demo-accounts">
+                <b>演示账号：</b><br>
+                管理员：<b>admin / admin123</b><br>
+                财务人员：<b>finance / finance123</b><br>
+                销售人员（只读）：<b>sales / sales123</b>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script>
+    const NEXT_URL = {{ (next or '')|tojson }};
+
+    async function doLogin() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        if (!username || !password) { Toast.err('请输入账号与密码'); return; }
+        const btn = document.getElementById('btn-login');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span> 登录中…';
+        try {
+            await API.post('/api/auth/login', { username: username, password: password });
+            Toast.ok('登录成功，正在进入系统…');
+            setTimeout(function () { location.href = NEXT_URL || '/dashboard'; }, 500);
+        } catch (e) {
+            Toast.err(e.message);
+            btn.disabled = false;
+            btn.textContent = '登 录';
+        }
+    }
+
+    document.getElementById('btn-login').addEventListener('click', doLogin);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Enter') { doLogin(); } });
+    document.getElementById('username').focus();
+</script>
+</body>
+</html>

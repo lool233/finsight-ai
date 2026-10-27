@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}催还管理 - {{ APP_NAME }}{% endblock %}
+{% block page_title %}催还管理{% endblock %}
+{% block page_sub %}LLM 分析逾期借资并生成催还记录、下发催还短信{% endblock %}
+
+{% block content %}
+<div class="notice blue" id="engine-status">正在检测 LLM 与短信平台配置…</div>
+
+<div class="card">
+    <div class="card-head">
+        <h2>催还批处理</h2>
+        <span class="hint">逾期口径：约定还款日已过，或借资日至今超过阈值月数</span>
+    </div>
+    <div class="card-body">
+        <div class="toolbar">
+            <div class="field"><label>逾期阈值（月）</label>
+                <input type="number" id="f-months" value="{{ OVERDUE_MONTHS }}" min="1" max="24" style="width:90px"></div>
+            <div class="field"><label>部门</label><select id="f-dept"><option value="">全部部门</option></select></div>
+            <div class="field"><label>催还级别</label>
+                <select id="f-level"><option value="">全部级别</option>
+                    <option>一级</option><option>二级</option><option>三级</option></select></div>
+            <div class="field"><label>关键字</label>
+                <input type="text" id="f-keyword" placeholder="姓名 / 工号 / 借资单号"></div>
+            <div class="field"><label>&nbsp;
+                    <span style="font-size:12px;color:#6b7280">
+                        <input type="checkbox" id="f-force" style="width:auto"> 强制重新催还</span></label></div>
+            <div class="spacer"></div>
+            <div class="field"><label>&nbsp;</label>
+                <button class="btn primary" id="btn-scan">🔍 扫描逾期借资</button>
+                <button class="btn primary" id="btn-run-all">⚡ 全部生成催还记录</button>
+                <button class="btn" id="btn-run-selected" disabled>仅催还选中项</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid cols-4">
+    <div class="stat danger"><div class="label">逾期未还笔数</div><div class="value danger" id="ov-count">-</div></div>
+    <div class="stat danger"><div class="label">逾期未还金额（元）</div><div class="value danger" id="ov-amount">-</div></div>
+    <div class="stat warn"><div class="label">一级 / 二级 / 三级</div><div class="value warn" id="ov-level">-</div></div>
+    <div class="stat"><div class="label">历史催还记录</div><div class="value" id="ov-history">-</div></div>
+</div>
+
+<div class="card">
+    <div class="card-head">
+        <h2>
+            <button class="btn sm primary" id="tab-overdue">待催还借资台账</button>
+            <button class="btn sm" id="tab-records">催还记录</button>
+        </h2>
+        <span class="hint" id="tab-hint"></span>
+    </div>
+    <div class="card-body tight">
+        <div id="panel-overdue">
+            <div id="table-overdue"></div>
+        </div>
+        <div id="panel-records" style="display:none">
+            <div class="toolbar" style="padding:12px 16px 0">
+                <div class="field"><label>发送状态</label>
+                    <select id="c-status"><option value="">全部</option>
+                        <option>已发送</option><option>无短信平台</option>
+                        <option>发送失败</option><option>待发送</option></select></div>
+                <div class="field"><label>生成日期起</label><input type="date" id="c-start"></div>
+                <div class="field"><label>生成日期止</label><input type="date" id="c-end"></div>
+                <div class="field"><label>&nbsp;</label>
+                    <button class="btn" id="btn-search-records">查询</button>
+                    <button class="btn" id="btn-export-records">导出 CSV</button></div>
+            </div>
+            <div id="table-records"></div>
+            <div class="pager" id="pager-records"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 催还结果弹窗 -->
+<div class="modal-mask" id="modal-result">
+    <div class="modal wide">
+        <div class="modal-head">
+            <h3>催还批处理结果</h3>
+            <button class="x" data-close="modal-result">×</button>
+        </div>
+        <div class="modal-body" id="result-body"></div>
+        <div class="modal-foot">
+            <button class="btn primary" data-close="modal-result">知道了</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/collections.js') }}"></script>
+{% endblock %}

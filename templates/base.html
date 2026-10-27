@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<div class="layout">
+    <!-- 左侧功能导航 -->
+    <aside class="sidebar">
+        <div class="logo">
+            <b>智析 FinSight AI</b>
+            <span>{{ APP_SUBTITLE }} v{{ APP_VERSION }}</span>
+        </div>
+        <nav>
+            <div class="group">业务办理</div>
+            <a href="/dashboard" class="{{ 'active' if active == 'dashboard' }}"><span class="ico">▤</span>数据看板</a>
+            <a href="/loans" class="{{ 'active' if active == 'loans' }}"><span class="ico">¥</span>借资管理</a>
+            <a href="/collections" class="{{ 'active' if active == 'collections' }}"><span class="ico">✉</span>催还管理</a>
+            <a href="/sales" class="{{ 'active' if active == 'sales' }}"><span class="ico">☺</span>销售人员</a>
+            <div class="group">智能分析</div>
+            <a href="/assistant" class="{{ 'active' if active == 'assistant' }}"><span class="ico">✦</span>AI 智能助手</a>
+            <a href="/stats" class="{{ 'active' if active == 'stats' }}"><span class="ico">▦</span>统计报表</a>
+            <div class="group">系统</div>
+            <a href="/system" class="{{ 'active' if active == 'system' }}"><span class="ico">⚙</span>系统状态</a>
+        </nav>
+        <div class="foot">
+            逾期规则：借资超过 {{ OVERDUE_MONTHS }} 个月未还<br>即自动进入催还流程
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <h1>{% block page_title %}数据看板{% endblock %}
+                <span class="sub">{% block page_sub %}{% endblock %}</span>
+            </h1>
+            <div class="user">
+                <span class="avatar">{{ (user.real_name or user.username)[0] if user else '?' }}</span>
+                <span>{{ user.real_name if user else '' }}
+                    <span class="tag blue">{{ {'admin':'系统管理员','finance':'财务人员','sales':'销售人员','viewer':'只读'}[user.role] if user else '' }}</span>
+                </span>
+                <a href="javascript:;" id="btn-change-pwd" class="btn sm ghost">修改密码</a>
+                <a href="javascript:;" id="btn-logout" class="btn sm ghost">退出</a>
+            </div>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<!-- 修改密码弹窗 -->
+<div class="modal-mask" id="modal-pwd">
+    <div class="modal narrow">
+        <div class="modal-head">
+            <h3>修改登录密码</h3>
+            <button class="x" data-close="modal-pwd">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="field"><label>原密码<span class="req">*</span></label>
+                <input type="password" id="old-password" placeholder="请输入原密码"></div>
+            <div class="field"><label>新密码<span class="req">*</span></label>
+                <input type="password" id="new-password" placeholder="不少于 6 位"></div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn" data-close="modal-pwd">取消</button>
+            <button class="btn primary" id="btn-save-pwd">确认修改</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.getElementById('btn-logout').addEventListener('click', async function () {
+        try { await API.post('/api/auth/logout'); } catch (e) { /* 忽略 */ }
+        location.href = '/login';
+    });
+    document.getElementById('btn-change-pwd').addEventListener('click', function () {
+        UI.openModal('modal-pwd');
+    });
+    document.getElementById('btn-save-pwd').addEventListener('click', async function () {
+        const oldPwd = document.getElementById('old-password').value;
+        const newPwd = document.getElementById('new-password').value;
+        if (!oldPwd || !newPwd) { Toast.err('请填写原密码与新密码'); return; }
+        try {
+            await API.post('/api/auth/change-password', { old_password: oldPwd, new_password: newPwd });
+            Toast.ok('密码修改成功，请重新登录');
+            setTimeout(function () { location.href = '/login'; }, 1200);
+        } catch (e) { Toast.err(e.message); }
+    });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

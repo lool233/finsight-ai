@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}销售人员 - {{ APP_NAME }}{% endblock %}
+{% block page_title %}销售人员管理{% endblock %}
+{% block page_sub %}借资主体信息维护，手机号用于接收催还短信{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-head">
+        <h2>查询条件</h2>
+        <button class="btn primary sm" id="btn-add">+ 新增销售人员</button>
+    </div>
+    <div class="card-body">
+        <div class="toolbar">
+            <div class="field"><label>关键字</label>
+                <input type="text" id="f-keyword" placeholder="姓名 / 工号 / 手机号 / 区域"></div>
+            <div class="field"><label>部门</label><select id="f-dept"><option value="">全部部门</option></select></div>
+            <div class="field"><label>状态</label>
+                <select id="f-status"><option value="">全部</option><option>在职</option><option>离职</option></select></div>
+            <div class="spacer"></div>
+            <div class="field"><label>&nbsp;</label>
+                <button class="btn primary" id="btn-search">查询</button>
+                <button class="btn" id="btn-reset">重置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head"><h2>销售人员列表</h2><span class="hint">按未还金额降序排列</span></div>
+    <div class="card-body tight">
+        <div id="table-sales"></div>
+        <div class="pager" id="pager"></div>
+    </div>
+</div>
+
+<div class="modal-mask" id="modal-sales">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="sales-modal-title">新增销售人员</h3>
+            <button class="x" data-close="modal-sales">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="form-sales" onsubmit="return false">
+                <input type="hidden" name="id">
+                <div class="form-grid">
+                    <div class="field"><label>工号<span class="req">*</span></label>
+                        <input type="text" name="emp_no" placeholder="如 XS2025011"></div>
+                    <div class="field"><label>姓名<span class="req">*</span></label>
+                        <input type="text" name="name" placeholder="请输入姓名"></div>
+                    <div class="field"><label>性别</label>
+                        <select name="gender"><option>男</option><option>女</option></select></div>
+                    <div class="field"><label>手机号<span class="req">*</span></label>
+                        <input type="text" name="phone" maxlength="11" placeholder="11 位手机号，用于接收催还短信"></div>
+                    <div class="field"><label>所属部门<span class="req">*</span></label>
+                        <input type="text" name="dept" list="dept-list" placeholder="如 华南销售一部">
+                        <datalist id="dept-list"></datalist></div>
+                    <div class="field"><label>负责区域</label>
+                        <input type="text" name="region" placeholder="如 广州"></div>
+                    <div class="field"><label>岗位</label>
+                        <input type="text" name="job_title" placeholder="如 销售代表" value="销售代表"></div>
+                    <div class="field"><label>入职日期</label><input type="date" name="entry_date"></div>
+                    <div class="field"><label>状态</label>
+                        <select name="status"><option>在职</option><option>离职</option></select></div>
+                    <div class="field full"><label>备注</label><input type="text" name="remark"></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-foot">
+            <button class="btn" data-close="modal-sales">取消</button>
+            <button class="btn primary" id="btn-save-sales">保存</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/sales.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}数据看板 - {{ APP_NAME }}{% endblock %}
+{% block page_title %}数据看板{% endblock %}
+{% block page_sub %}借资与催还整体情况一览{% endblock %}
+
+{% block content %}
+<div class="grid cols-4" id="stat-cards">
+    <div class="stat"><div class="label">借资总额（元）</div><div class="value" id="s-total">-</div>
+        <div class="foot" id="s-total-foot">共 - 笔借资</div></div>
+    <div class="stat warn"><div class="label">未还金额（元）</div><div class="value warn" id="s-unpaid">-</div>
+        <div class="foot" id="s-unpaid-foot">涉及 - 人</div></div>
+    <div class="stat danger"><div class="label">逾期未还金额（元）</div><div class="value danger" id="s-overdue">-</div>
+        <div class="foot" id="s-overdue-foot">逾期 - 笔</div></div>
+    <div class="stat ok"><div class="label">回款率</div><div class="value ok" id="s-rate">-</div>
+        <div class="foot" id="s-rate-foot">已还 - 元</div></div>
+</div>
+
+<div class="notice blue" id="tips">
+    <b>业务提示：</b>系统按“借资超过 {{ OVERDUE_MONTHS }} 个月未还”自动识别逾期借资；
+    点击右侧“一键生成催还记录”，系统将调用 LLM 分析逾期借资并生成催还短信。
+    <div style="margin-top:8px">
+        <button class="btn primary sm" id="btn-run-collection">⚡ 一键生成催还记录</button>
+        <a class="btn sm" href="/collections">查看催还记录</a>
+        <a class="btn sm" href="/assistant">用自然语言查询统计</a>
+    </div>
+</div>
+
+<div class="grid cols-2">
+    <div class="card">
+        <div class="card-head"><h2>各部门借资与未还金额</h2><span class="hint">单位：元</span></div>
+        <div class="card-body"><div class="chart" id="chart-dept"></div></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>借资类型构成</h2><span class="hint">按借资金额占比</span></div>
+        <div class="card-body"><div class="chart" id="chart-type"></div></div>
+    </div>
+</div>
+
+<div class="grid cols-2">
+    <div class="card">
+        <div class="card-head"><h2>月度借资趋势</h2><span class="hint">近 6 个月借资金额</span></div>
+        <div class="card-body"><div class="chart" id="chart-trend"></div></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>逾期账龄分布</h2><span class="hint">按约定还款日分档</span></div>
+        <div class="card-body"><div class="chart" id="chart-aging"></div></div>
+    </div>
+</div>
+
+<div class="grid cols-2">
+    <div class="card">
+        <div class="card-head"><h2>未还金额 TOP 8 销售人员</h2><a class="hint" href="/stats">更多统计 →</a></div>
+        <div class="card-body tight"><div id="table-top"></div></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>最近催还记录</h2><a class="hint" href="/collections">全部记录 →</a></div>
+        <div class="card-body tight"><div id="table-collection"></div></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head"><h2>最近借资登记</h2><a class="hint" href="/loans">借资管理 →</a></div>
+    <div class="card-body tight"><div id="table-loan"></div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
